@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Paper to Tree Calculator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 450px;
+      margin: 40px auto;
+      padding: 25px;
+      background: #f0f9f4;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(46, 125, 50, 0.2);
+      color: #1b5e20;
+    }
+    h2 {
+      text-align: center;
+      color: #2e7d32;
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: 600;
+      margin-top: 15px;
+      display: block;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 6px;
+      border: 1.5px solid #a5d6a7;
+      font-size: 1rem;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    }
+    input:focus, select:focus {
+      border-color: #388e3c;
+      outline: none;
+    }
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 12px;
+      background-color: #2e7d32;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 5px 10px rgba(46, 125, 50, 0.4);
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #276629;
+    }
+    #result {
+      margin-top: 30px;
+      background: #d0f0d9;
+      padding: 18px 20px;
+      border-radius: 10px;
+      border: 1.5px solid #81c784;
+      font-size: 1.1rem;
+      line-height: 1.5;
+    }
+    .tip {
+      margin-top: 15px;
+      font-style: italic;
+      color: #4caf50;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <h2>Paper to Tree Calculator</h2>
+
+  <label for="sheets">Daily paper sheets used:</label>
+  <input type="number" id="sheets" min="1" placeholder="Enter number of sheets (e.g. 10)" />
+
+  <label for="paperType">Select paper type:</label>
+  <select id="paperType">
+    <option value="1" data-desc="Standard A4 paper, approx. 0.1 mm thick">A4 Paper</option>
+    <option value="3" data-desc="Thicker chart paper, approx. 0.3 mm thick">Chart Paper</option>
+    <option value="5" data-desc="Drawing sheet, approx. 0.5 mm thick">Drawing Sheet</option>
+    <option value="10" data-desc="Cardboard, approx. 1 mm thick">Cardboard</option>
+  </select>
+
+  <div id="paperDesc" style="color:#2e7d32; margin-top:6px; font-size: 0.9rem;"></div>
+
+  <button onclick="calculateTrees()">Calculate Trees Used</button>
+
+  <div id="result"></div>
+
+  <script>
+    const paperType = document.getElementById('paperType');
+    const paperDesc = document.getElementById('paperDesc');
+
+    // Show description for selected paper type
+    function updateDescription() {
+      const selectedOption = paperType.options[paperType.selectedIndex];
+      paperDesc.textContent = selectedOption.getAttribute('data-desc');
+    }
+    paperType.addEventListener('change', updateDescription);
+    updateDescription(); // initial call
+
+    function calculateTrees() {
+      const sheetsPerDay = parseInt(document.getElementById('sheets').value);
+      const thicknessRatio = parseInt(paperType.value);
+
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '';
+
+      // Validate input
+      if (isNaN(sheetsPerDay) || sheetsPerDay <= 0) {
+        alert('Please enter a valid positive number for sheets.');
+        return;
+      }
+
+      // Constants
+      const sheetsPerTreeA4 = 10000; // Approximate sheets from 1 tree of A4 thickness
+      const sheetsPerTree = sheetsPerTreeA4 / thicknessRatio;
+
+      // Calculations
+      const treesPerDay = sheetsPerDay / sheetsPerTree;
+      const treesPerMonth = treesPerDay * 30;
+      const treesPerYear = treesPerDay * 365;
+
+      // Round values
+      const tDay = treesPerDay.toFixed(4);
+      const tMonth = treesPerMonth.toFixed(3);
+      const tYear = treesPerYear.toFixed(2);
+
+      // Result message
+      resultDiv.innerHTML = `
+        <p>Based on your daily usage of <strong>${sheetsPerDay}</strong> sheets of <strong>${paperType.options[paperType.selectedIndex].text}</strong>:</p>
+        <ul>
+          <li>Approximate trees used per day: <strong>${tDay}</strong></li>
+          <li>Approximate trees used per month: <strong>${tMonth}</strong></li>
+          <li>Approximate trees used per year: <strong>${tYear}</strong></li>
+        </ul>
+        <p class="tip">💡 Tip: Switching to digital notes even a few days a week can save many trees annually!</p>
+      `;
+    }
+  </script>
+</body>
+</html>

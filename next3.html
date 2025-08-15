@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Paper to Tree Calculator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 480px;
+      margin: 40px auto;
+      padding: 25px;
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      border-radius: 15px;
+      box-shadow: 0 0 25px rgba(0, 128, 0, 0.3);
+      color: #1b5e20;
+    }
+    h2 {
+      text-align: center;
+      color: #2e7d32;
+      margin-bottom: 20px;
+      font-weight: 700;
+      text-shadow: 1px 1px 3px #a0cfa0;
+    }
+    label {
+      font-weight: 600;
+      margin-top: 15px;
+      display: block;
+      color: #155724;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: 1.5px solid #a5d6a7;
+      font-size: 1rem;
+      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    }
+    input:focus, select:focus {
+      border-color: #388e3c;
+      outline: none;
+      background-color: #e9f5e9;
+    }
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 14px;
+      background-color: #2e7d32;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1.25rem;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 6px 15px rgba(46, 125, 50, 0.45);
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #276629;
+    }
+    #result {
+      margin-top: 30px;
+      background: #d0f0d9;
+      padding: 22px 25px;
+      border-radius: 14px;
+      border: 1.5px solid #81c784;
+      font-size: 1.15rem;
+      line-height: 1.6;
+      color: #155724;
+      box-shadow: 0 3px 10px rgba(46, 125, 50, 0.15);
+    }
+    .tip {
+      margin-top: 18px;
+      font-style: italic;
+      color: #4caf50;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <h2>Paper to Tree Calculator</h2>
+
+  <label for="usageType">Calculate based on:</label>
+  <select id="usageType" onchange="toggleInputs()">
+    <option value="daily">Daily Paper Use</option>
+    <option value="monthly">Monthly Paper Use</option>
+  </select>
+
+  <div id="dailyInputDiv">
+    <label for="sheets">Number of sheets used per day:</label>
+    <input type="number" id="sheets" min="1" placeholder="Enter number of sheets (e.g. 10)" />
+  </div>
+
+  <div id="monthlyInputDiv" style="display:none;">
+    <label for="monthlySheets">Number of sheets used per month:</label>
+    <input type="number" id="monthlySheets" min="1" placeholder="Enter sheets used per month (e.g. 300)" />
+  </div>
+
+  <label for="paperType">Select paper type:</label>
+  <select id="paperType" onchange="updateDescription()">
+    <option value="1" data-desc="Standard A4 paper, approx. 0.1 mm thick">A4 Paper</option>
+    <option value="3" data-desc="Thicker chart paper, approx. 0.3 mm thick">Chart Paper</option>
+    <option value="5" data-desc="Drawing sheet, approx. 0.5 mm thick">Drawing Sheet</option>
+    <option value="10" data-desc="Cardboard, approx. 1 mm thick">Cardboard</option>
+  </select>
+
+  <div id="paperDesc" style="color:#2e7d32; margin-top:6px; font-size: 0.9rem;"></div>
+
+  <label for="usageDays">How many days per year do you use paper? (1-365):</label>
+  <input type="number" id="usageDays" min="1" max="365" value="365" />
+
+  <label for="digitalPercent">Percent of paper you want to replace with digital (0-100):</label>
+  <input type="number" id="digitalPercent" min="0" max="100" value="0" />
+
+  <button onclick="calculateTrees()">Calculate Trees Used</button>
+
+  <div id="result"></div>
+
+  <script>
+    const paperType = document.getElementById('paperType');
+    const paperDesc = document.getElementById('paperDesc');
+    const usageType = document.getElementById('usageType');
+    const dailyInputDiv = document.getElementById('dailyInputDiv');
+    const monthlyInputDiv = document.getElementById('monthlyInputDiv');
+
+    function updateDescription() {
+      const selectedOption = paperType.options[paperType.selectedIndex];
+      paperDesc.textContent = selectedOption.getAttribute('data-desc');
+    }
+
+    paperType.addEventListener('change', updateDescription);
+    updateDescription();
+
+    function toggleInputs() {
+      if (usageType.value === 'daily') {
+        dailyInputDiv.style.display = 'block';
+        monthlyInputDiv.style.display = 'none';
+      } else {
+        dailyInputDiv.style.display = 'none';
+        monthlyInputDiv.style.display = 'block';
+      }
+      clearResults();
+    }
+
+    function clearResults() {
+      document.getElementById('result').innerHTML = '';
+    }
+
+    function calculateTrees() {
+      let sheets;
+      if (usageType.value === 'daily') {
+        sheets = parseInt(document.getElementById('sheets').value);
+      } else {
+        sheets = parseInt(document.getElementById('monthlySheets').value);
+      }
+
+      const thicknessRatio = parseInt(paperType.value);
+      const usageDays = parseInt(document.getElementById('usageDays').value);
+      const digitalPercent = parseInt(document.getElementById('digitalPercent').value);
+
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = '';
+
+      if (isNaN(sheets) || sheets <= 0) {
+        alert('Please enter a valid positive number of sheets.');
+        return;
+      }
+      if (isNaN(usageDays) || usageDays < 1 || usageDays > 365) {
+        alert('Please enter a valid number of usage days between 1 and 365.');
+        return;
+      }
+      if (isNaN(digitalPercent) || digitalPercent < 0 || digitalPercent > 100) {
+        alert('Please enter a valid digital replacement percentage between 0 and 100.');
+        return;
+      }
+
+      const sheetsPerTreeA4 = 10000;
+      const sheetsPerTree = sheetsPerTreeA4 / thicknessRatio;
+
+      // Calculate total sheets used per year
+      let totalSheetsPerYear;
+      if (usageType.value === 'daily') {
+        totalSheetsPerYear = sheets * usageDays;
+      } else {
+        // monthly input
+        // Calculate approximate sheets per year based on months (usageDays/30)
+        totalSheetsPerYear = sheets * (usageDays / 30);
+      }
+
+      // Trees used per year before digital replacement
+      const treesUsed = totalSheetsPerYear / sheetsPerTree;
+
+      // Trees saved by digital replacement
+      const treesSaved = treesUsed * (digitalPercent / 100);
+
+      // Trees after digital replacement
+      const treesAfter = treesUsed - treesSaved;
+
+      // Round values
+      const round = (num, dec=2) => Number(num.toFixed(dec));
+
+      resultDiv.innerHTML = `
+        <p><strong>Paper Type:</strong> ${paperType.options[paperType.selectedIndex].text}</p>
+        <p><strong>Total sheets used per year:</strong> ${round(totalSheetsPerYear,0)}</p>
+        <p><strong>Estimated trees used per year:</strong> ${round(treesUsed)}</p>
+        <p><strong>Trees saved by digital replacement (${digitalPercent}%):</strong> ${round(treesSaved)}</p>
+        <p><strong>Estimated trees used after digital shift:</strong> ${round(treesAfter)}</p>
+        <p class="tip">🌳 Every tree saved helps the environment. Keep it up!</p>
+      `;
+    }
+  </script>
+</body>
+</html>
